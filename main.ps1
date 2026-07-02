@@ -4,7 +4,6 @@
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "Requesting Administrator rights..." -ForegroundColor Yellow
     Write-Host "(A UAC window should appear - click Yes)" -ForegroundColor Gray
-    pause
     
     $scriptPath = $MyInvocation.MyCommand.Path
     if ($scriptPath) {
