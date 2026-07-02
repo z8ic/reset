@@ -1,15 +1,23 @@
+# =============================================
+# Auto Elevate to Administrator
+# =============================================
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "Requesting Administrator rights..." -ForegroundColor Yellow
-    try {
-        $scriptPath = $MyInvocation.MyCommand.Path
-        Start-Process PowerShell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
-        exit
-    }
-    catch {
-        Write-Host "Failed to get Administrator rights." -ForegroundColor Red
-        Write-Host "Please right-click the script and choose 'Run as administrator'." -ForegroundColor Yellow
-        Read-Host "Press Enter to exit"
-        exit
+    Write-Host "(A UAC window should appear - click Yes)" -ForegroundColor Gray
+    pause
+    
+    $scriptPath = $MyInvocation.MyCommand.Path
+    if ($scriptPath) {
+        try {
+            Start-Process PowerShell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+            exit
+        }
+        catch {
+            Write-Host "Failed to elevate to Administrator." -ForegroundColor Red
+            Write-Host "Please right-click the script and select 'Run as administrator'" -ForegroundColor Yellow
+            pause
+            exit
+        }
     }
 }
 
@@ -57,6 +65,7 @@ Write-Host "2. Zelf kiezen"
 Write-Host "3. Alles downloaden naar Apps\Installers"
 Write-Host "4. Configs downloaden naar Apps\Configs"
 Write-Host "5. Open Chris Titus Tool (winutil)"
+Write-Host "6. Run Trusted Benchmark (Cinebench)"
 Write-Host "0. Exit"
 Write-Host ""
 
@@ -79,70 +88,23 @@ switch ($choice) {
         Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
         Start-Process $nvidiaTemp -Wait
 
-        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
+        Write-Host "`nKlaar!" -ForegroundColor Green
         Download-Configs
-        Read-Host
         Clear-Host
     }
-    "2" {
-        foreach ($app in $apps.Keys) {
-            $answer = Read-Host "Wil je $app installeren? (Y/N)"
-            if ($answer -match "^[Yy]$") {
-                Write-Host "Installeren van $app..." -ForegroundColor Yellow
-                winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
-            }
-        }
-
-        $answer = Read-Host "Wil je Spotify installeren? (Y/N)"
-        if ($answer -match "^[Yy]$") {
-            Write-Host "Spotify installeren (silent)..." -ForegroundColor Yellow
-            $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
-            Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
-            Start-Process $spotifyTemp -ArgumentList "/Silent" -Wait -NoNewWindow
-        }
-
-        $answer = Read-Host "Wil je NVIDIA App installeren? (Y/N)"
-        if ($answer -match "^[Yy]$") {
-            Write-Host "NVIDIA App..." -ForegroundColor Yellow
-            $nvidiaTemp = "$env:TEMP\NVIDIA_App_Setup.exe"
-            Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
-            Start-Process $nvidiaTemp -Wait
-        }
-        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
-        Read-Host
-        Clear-Host
-    }
-    "3" {
-        Make-Folders
-        foreach ($app in $apps.Values) {
-            Write-Host "Downloading $app..." -ForegroundColor Yellow
-            winget download --id $app --source winget -e --download-directory $downloadPath
-        }
-        Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile "$downloadPath\Spotify_Setup.exe" -UseBasicParsing
-        Invoke-WebRequest $nvidiaUrl -OutFile "$downloadPath\NVIDIA_App_Setup.exe" -UseBasicParsing
-        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
-        Read-Host
-        Clear-Host
-    }
-    "4" {
-        Download-Configs
-        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
-        Read-Host
-        Clear-Host
-    }
-    "5" {
-        Write-Host "Opening Chris Titus Tool (winutil)..." -ForegroundColor Cyan
+    "2" { ... }   # (I shortened it here to save space - keep your existing "2" block)
+    "3" { ... }
+    "4" { ... }
+    "5" { ... }
+    "6" {
+        Write-Host "Launching Cinebench R24 (Trusted Benchmark)..." -ForegroundColor Cyan
         try {
-            Invoke-RestMethod -Uri "https://christitus.com/win" -UseBasicParsing | Invoke-Expression
+            Start-Process "https://www.maxon.net/en/downloads/cinebench-2024"
+            Write-Host "Cinebench page opened. Download and run the latest version." -ForegroundColor Green
         }
         catch {
-            Write-Host "Error loading Chris Titus Tool:" -ForegroundColor Red
-            Write-Host $_.Exception.Message -ForegroundColor Red
-            Write-Host "`nTips:" -ForegroundColor Yellow
-            Write-Host "- Check your internet connection" -ForegroundColor Yellow
-            Write-Host "- Make sure PowerShell can run scripts" -ForegroundColor Yellow
+            Write-Host "Could not open benchmark link." -ForegroundColor Red
         }
-        Read-Host "`nDruk op Enter om terug te gaan..."
         Clear-Host
     }
     "0" {
@@ -152,7 +114,6 @@ switch ($choice) {
     }
     Default {
         Write-Host "Ongeldige keuze." -ForegroundColor Red
-        Read-Host
         Clear-Host
     }
 }
