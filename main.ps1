@@ -19,6 +19,7 @@ $desktop = [Environment]::GetFolderPath("Desktop")
 $setupPath = "$desktop\Apps"
 $downloadPath = "$setupPath\Installers"
 $configPath = "$setupPath\Configs"
+$benchmarkPath = "$setupPath\Benchmark"
 
 $repo = "https://raw.githubusercontent.com/z8ic/reset/main"
 $nvidiaUrl = "https://us.download.nvidia.com/nvapp/client/11.0.7.247/NVIDIA_app_v11.0.7.247.exe"
@@ -36,33 +37,7 @@ $apps = @{
 function Make-Folders {
     New-Item -ItemType Directory -Path $downloadPath -Force | Out-Null
     New-Item -ItemType Directory -Path $configPath -Force | Out-Null
-}
-
-function Create-ConfigReadme {
-    $readmePath = "$configPath\README_Config_Files.txt"
-    $content = @"
-Configs have been downloaded to:
-$configPath
-
-Where to put each file:
-
-1. grijs.ini + kleurtjes.ini
-   → ReShade folder (usually Documents\ReShade\Presets or Shaders)
-
-2. fivem.cfg
-   → %localappdata%\FiveM\FiveM.app\citizen\scripting
-
-3. gta5_settings.xml
-   → %localappdata%\Rockstar Games\GTA V
-
-4. camera_save_structure.xml
-   → Usually in your FiveM resources folder or GTA V main folder
-
-Copy the files to the correct locations after downloading.
-"@
-
-    $content | Out-File -FilePath $readmePath -Encoding UTF8
-    Write-Host "README created in $configPath" -ForegroundColor Green
+    New-Item -ItemType Directory -Path $benchmarkPath -Force | Out-Null
 }
 
 function Download-Configs {
@@ -72,10 +47,19 @@ function Download-Configs {
         Write-Host "Downloading $file..." -ForegroundColor Yellow
         Invoke-WebRequest "$repo/$file" -OutFile "$configPath\$file" -UseBasicParsing
     }
-    Create-ConfigReadme
     Write-Host "Configs opgeslagen in $configPath" -ForegroundColor Green
 }
 
+function Run-UserBenchmark {
+    Make-Folders
+    Write-Host "Downloading UserBenchmark Installer..." -ForegroundColor Yellow
+    $installerPath = "$benchmarkPath\UserBenchmark.exe"
+    
+    Invoke-WebRequest "https://www.userbenchmark.com/resources/download/UserBenchmark.exe" -OutFile $installerPath -UseBasicParsing
+    
+    Write-Host "Running UserBenchmark Installer..." -ForegroundColor Green
+    Start-Process $installerPath
+}
 
 Write-Host "=================================" -ForegroundColor Cyan
 Write-Host "       Reset Tool" -ForegroundColor Cyan
@@ -86,6 +70,7 @@ Write-Host "2. Zelf kiezen"
 Write-Host "3. Alles downloaden naar Apps\Installers"
 Write-Host "4. Configs downloaden naar Apps\Configs"
 Write-Host "5. Open Chris Titus Tool"
+Write-Host "6. Download & Run UserBenchmark Installer"
 Write-Host "0. Exit"
 Write-Host ""
 
@@ -161,6 +146,10 @@ switch ($choice) {
         } catch {
             Write-Host "Could not load Chris Titus Tool." -ForegroundColor Red
         }
+        Clear-Host
+    }
+    "6" {
+        Run-UserBenchmark
         Clear-Host
     }
     "0" {
