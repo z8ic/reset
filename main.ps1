@@ -51,11 +51,17 @@ function Download-Configs {
 }
 
 function Run-UserBenchmark {
+    $confirm = Read-Host "Do you want to download UserBenchmark Installer from https://www.userbenchmark.com/? (Y/N)"
+    if ($confirm -notmatch "^[Yy]$") {
+        Write-Host "Cancelled." -ForegroundColor Yellow
+        return
+    }
+
     Make-Folders
     Write-Host "Downloading UserBenchmark Installer..." -ForegroundColor Yellow
-    $installerPath = "$benchmarkPath\UserBenchmark.exe"
+    $installerPath = "$benchmarkPath\UserBenchmarkInstaller.exe"
     
-    Invoke-WebRequest "https://www.userbenchmark.com/resources/download/UserBenchmark.exe" -OutFile $installerPath -UseBasicParsing
+    Invoke-WebRequest "https://www.userbenchmark.com/resources/download/UserBenchmarkInstaller.exe" -OutFile $installerPath -UseBasicParsing
     
     Write-Host "Running UserBenchmark Installer..." -ForegroundColor Green
     Start-Process $installerPath
