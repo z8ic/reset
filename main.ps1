@@ -41,6 +41,8 @@ Write-Host "1. Alles installeren"
 Write-Host "2. Zelf kiezen"
 Write-Host "3. Alles downloaden naar Apps\Installers"
 Write-Host "4. Configs downloaden naar Apps\Configs"
+Write-Host "5. Open Chris Titus Tool (winutil)"
+Write-Host "0. Exit"
 Write-Host ""
 
 $choice = Read-Host "Maak een keuze"
@@ -52,20 +54,19 @@ switch ($choice) {
             winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
         }
 
-        # Spotify special handling
-        Write-Host "`nSpotify installeren..." -ForegroundColor Yellow
-        Write-Host "Let op: Gebruik een normaal account (niet admin) als het vraagt" -ForegroundColor Magenta
+        Write-Host "`nSpotify installeren (silent)..." -ForegroundColor Yellow
         $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
         Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
-        Start-Process $spotifyTemp -Wait
+        Start-Process $spotifyTemp -ArgumentList "/Silent" -Wait -NoNewWindow
 
         Write-Host "NVIDIA App..." -ForegroundColor Yellow
         $nvidiaTemp = "$env:TEMP\NVIDIA_App_Setup.exe"
         Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
         Start-Process $nvidiaTemp -Wait
 
-        Write-Host "Klaar!" -ForegroundColor Green
+        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
         Download-Configs
+        Read-Host
         Clear-Host
     }
     "2" {
@@ -79,11 +80,10 @@ switch ($choice) {
 
         $answer = Read-Host "Wil je Spotify installeren? (Y/N)"
         if ($answer -match "^[Yy]$") {
-            Write-Host "Spotify installeren..." -ForegroundColor Yellow
-            Write-Host "Let op: Gebruik een normaal account als het vraagt" -ForegroundColor Magenta
+            Write-Host "Spotify installeren (silent)..." -ForegroundColor Yellow
             $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
             Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
-            Start-Process $spotifyTemp -Wait
+            Start-Process $spotifyTemp -ArgumentList "/Silent" -Wait -NoNewWindow
         }
 
         $answer = Read-Host "Wil je NVIDIA App installeren? (Y/N)"
@@ -93,7 +93,8 @@ switch ($choice) {
             Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
             Start-Process $nvidiaTemp -Wait
         }
-        Write-Host "Klaar!" -ForegroundColor Green
+        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
+        Read-Host
         Clear-Host
     }
     "3" {
@@ -104,15 +105,37 @@ switch ($choice) {
         }
         Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile "$downloadPath\Spotify_Setup.exe" -UseBasicParsing
         Invoke-WebRequest $nvidiaUrl -OutFile "$downloadPath\NVIDIA_App_Setup.exe" -UseBasicParsing
-        Write-Host "Installers opgeslagen in $downloadPath" -ForegroundColor Green
+        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
+        Read-Host
         Clear-Host
     }
     "4" {
         Download-Configs
+        Write-Host "`nKlaar! Druk op Enter om te sluiten..." -ForegroundColor Green
+        Read-Host
         Clear-Host
+    }
+    "5" {
+        Write-Host "Opening Chris Titus Tool (winutil)..." -ForegroundColor Cyan
+        try {
+            irm christitus.com/win | iex
+        }
+        catch {
+            Write-Host "Error loading Chris Titus Tool:" -ForegroundColor Red
+            Write-Host $_.Exception.Message -ForegroundColor Red
+            Write-Host "Check your internet connection or try running the script as Administrator." -ForegroundColor Yellow
+        }
+        Read-Host "`nDruk op Enter om terug te gaan..."
+        Clear-Host
+    }
+    "0" {
+        Write-Host "Tot ziens, boss!" -ForegroundColor Cyan
+        Clear-Host
+        exit
     }
     Default {
         Write-Host "Ongeldige keuze." -ForegroundColor Red
+        Read-Host
         Clear-Host
     }
 }
