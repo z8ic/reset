@@ -1,3 +1,18 @@
+if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host "Requesting Administrator rights..." -ForegroundColor Yellow
+    try {
+        $scriptPath = $MyInvocation.MyCommand.Path
+        Start-Process PowerShell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+        exit
+    }
+    catch {
+        Write-Host "Failed to get Administrator rights." -ForegroundColor Red
+        Write-Host "Please right-click the script and choose 'Run as administrator'." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit"
+        exit
+    }
+}
+
 Clear-Host
 
 $desktop = [Environment]::GetFolderPath("Desktop")
@@ -124,11 +139,10 @@ switch ($choice) {
             Write-Host "Error loading Chris Titus Tool:" -ForegroundColor Red
             Write-Host $_.Exception.Message -ForegroundColor Red
             Write-Host "`nTips:" -ForegroundColor Yellow
-            Write-Host "- Make sure you have internet connection" -ForegroundColor Yellow
-            Write-Host "- Try running PowerShell as Administrator" -ForegroundColor Yellow
-            Write-Host "- You can also open it manually by going to: https://christitus.com/win" -ForegroundColor Yellow
+            Write-Host "- Check your internet connection" -ForegroundColor Yellow
+            Write-Host "- Make sure PowerShell can run scripts" -ForegroundColor Yellow
         }
-        Read-Host "`nDruk op Enter om terug te gaan naar het menu..."
+        Read-Host "`nDruk op Enter om terug te gaan..."
         Clear-Host
     }
     "0" {
