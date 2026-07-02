@@ -1,6 +1,5 @@
 Clear-Host
 
-# Check if running as Administrator
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "ERROR: This script needs to be run as Administrator!" -ForegroundColor Red
     Write-Host "Right-click on the script → 'Run with PowerShell as administrator'" -ForegroundColor Yellow
