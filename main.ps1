@@ -51,7 +51,10 @@ switch ($choice) {
             Write-Host "Installeren van $app..." -ForegroundColor Yellow
             winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
         }
-        Write-Host "Spotify..." -ForegroundColor Yellow
+
+        # Spotify special handling
+        Write-Host "`nSpotify installeren..." -ForegroundColor Yellow
+        Write-Host "Let op: Gebruik een normaal account (niet admin) als het vraagt" -ForegroundColor Magenta
         $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
         Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
         Start-Process $spotifyTemp -Wait
@@ -73,13 +76,16 @@ switch ($choice) {
                 winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
             }
         }
+
         $answer = Read-Host "Wil je Spotify installeren? (Y/N)"
         if ($answer -match "^[Yy]$") {
-            Write-Host "Spotify..." -ForegroundColor Yellow
+            Write-Host "Spotify installeren..." -ForegroundColor Yellow
+            Write-Host "Let op: Gebruik een normaal account als het vraagt" -ForegroundColor Magenta
             $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
             Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
             Start-Process $spotifyTemp -Wait
         }
+
         $answer = Read-Host "Wil je NVIDIA App installeren? (Y/N)"
         if ($answer -match "^[Yy]$") {
             Write-Host "NVIDIA App..." -ForegroundColor Yellow
