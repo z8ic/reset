@@ -10,6 +10,7 @@ $nvidiaUrl = "https://us.download.nvidia.com/nvapp/client/11.0.7.247/NVIDIA_app_
 
 $apps = @{
     "Discord"           = "Discord.Discord"
+    "Epic Games"        = "EpicGames.EpicGamesLauncher"
     "Steam"             = "Valve.Steam"
     "Brave"             = "Brave.Brave"
     "Rockstar Launcher" = "RockstarGames.Launcher"
@@ -62,6 +63,7 @@ switch ($choice) {
 
         Write-Host "Klaar!" -ForegroundColor Green
         Download-Configs
+        Clear-Host
     }
     "2" {
         foreach ($app in $apps.Keys) {
@@ -86,6 +88,7 @@ switch ($choice) {
             Start-Process $nvidiaTemp -Wait
         }
         Write-Host "Klaar!" -ForegroundColor Green
+        Clear-Host
     }
     "3" {
         Make-Folders
@@ -96,12 +99,15 @@ switch ($choice) {
         Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile "$downloadPath\Spotify_Setup.exe" -UseBasicParsing
         Invoke-WebRequest $nvidiaUrl -OutFile "$downloadPath\NVIDIA_App_Setup.exe" -UseBasicParsing
         Write-Host "Installers opgeslagen in $downloadPath" -ForegroundColor Green
+        Clear-Host
     }
     "4" {
         Download-Configs
+        Clear-Host
     }
     Default {
         Write-Host "Ongeldige keuze." -ForegroundColor Red
+        Clear-Host
     }
 }
 
