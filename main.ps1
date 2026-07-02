@@ -1,14 +1,8 @@
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "This script needs Administrator rights." -ForegroundColor Yellow
-    Write-Host "Requesting elevation..." -ForegroundColor Yellow
-    
+    Write-Host "Requesting Administrator rights..." -ForegroundColor Yellow
     $script = $MyInvocation.MyCommand.Path
     if ($script) {
-        Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$script`"" 
-        exit
-    } else {
-        Write-Host "Could not find script path. Please run this file as Administrator manually." -ForegroundColor Red
-        pause
+        Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$script`""
         exit
     }
 }
@@ -140,7 +134,7 @@ switch ($choice) {
     "6" {
         Write-Host "Opening Cinebench R24 (Benchmark)..." -ForegroundColor Cyan
         Start-Process "https://www.maxon.net/en/cinebench"
-        Write-Host "Download and run the latest Cinebench from the page." -ForegroundColor Green
+        Write-Host "Download and run the latest version from the page." -ForegroundColor Green
         Clear-Host
     }
     "0" {
