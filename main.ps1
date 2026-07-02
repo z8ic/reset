@@ -45,18 +45,29 @@ $configPath
 WHERE TO PUT EACH FILE:
 
 1. grijs.ini
+   → %localappdata%\FiveM\FiveM.app\plugins\
+   Example:
+   C:\Users\<YourUser>\AppData\Local\FiveM\FiveM.app\plugins\
+
 2. kleurtjes.ini
    → %localappdata%\FiveM\FiveM.app\plugins\
+   Example:
+   C:\Users\<YourUser>\AppData\Local\FiveM\FiveM.app\plugins\
 
 3. fivem.cfg
    → %appdata%\CitizenFX\
-   (Example: C:\Users\<YourUser>\AppData\Roaming\CitizenFX\)
+   Example:
+   C:\Users\<YourUser>\AppData\Roaming\CitizenFX\
 
 4. gta5_settings.xml
    → %appdata%\CitizenFX\
+   Example:
+   C:\Users\<YourUser>\AppData\Roaming\CitizenFX\
 
 5. camera_save_structure.xml
    → %appdata%\CitizenFX\
+   Example:
+   C:\Users\<YourUser>\AppData\Roaming\CitizenFX\
 
 How to use:
 - Copy each file to the folder listed above.
