@@ -7,7 +7,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     }
     catch {
         Write-Host "Failed to get Administrator rights." -ForegroundColor Red
-        Write-Host "Right-click the script → Run as administrator" -ForegroundColor Yellow
+        Write-Host "Right-click → Run as administrator" -ForegroundColor Yellow
         pause
         exit
     }
@@ -38,6 +38,33 @@ function Make-Folders {
     New-Item -ItemType Directory -Path $configPath -Force | Out-Null
 }
 
+function Create-ConfigReadme {
+    $readmePath = "$configPath\README_Config_Files.txt"
+    $content = @"
+Configs have been downloaded to:
+$configPath
+
+Where to put each file:
+
+1. grijs.ini + kleurtjes.ini
+   → ReShade folder (usually Documents\ReShade\Presets or Shaders)
+
+2. fivem.cfg
+   → %localappdata%\FiveM\FiveM.app\citizen\scripting
+
+3. gta5_settings.xml
+   → %localappdata%\Rockstar Games\GTA V
+
+4. camera_save_structure.xml
+   → Usually in your FiveM resources folder or GTA V main folder
+
+Copy the files to the correct locations after downloading.
+"@
+
+    $content | Out-File -FilePath $readmePath -Encoding UTF8
+    Write-Host "README created in $configPath" -ForegroundColor Green
+}
+
 function Download-Configs {
     Make-Folders
     $files = @("grijs.ini","kleurtjes.ini","camera_save_structure.xml","fivem.cfg","gta5_settings.xml")
@@ -45,8 +72,10 @@ function Download-Configs {
         Write-Host "Downloading $file..." -ForegroundColor Yellow
         Invoke-WebRequest "$repo/$file" -OutFile "$configPath\$file" -UseBasicParsing
     }
+    Create-ConfigReadme
     Write-Host "Configs opgeslagen in $configPath" -ForegroundColor Green
 }
+
 
 Write-Host "=================================" -ForegroundColor Cyan
 Write-Host "       Reset Tool" -ForegroundColor Cyan
@@ -83,8 +112,7 @@ switch ($choice) {
         Download-Configs
         Clear-Host
     }
-    "2" { 
-        # Self choose logic (kept same as your current)
+    "2" {
         foreach ($app in $apps.Keys) {
             $answer = Read-Host "Wil je $app installeren? (Y/N)"
             if ($answer -match "^[Yy]$") {
@@ -92,7 +120,22 @@ switch ($choice) {
                 winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
             }
         }
-        # Spotify + NVIDIA part (shortened)
+
+        $answer = Read-Host "Wil je Spotify installeren? (Y/N)"
+        if ($answer -match "^[Yy]$") {
+            Write-Host "Spotify installeren..." -ForegroundColor Yellow
+            $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
+            Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
+            Start-Process $spotifyTemp -ArgumentList "/Silent" -Wait -NoNewWindow
+        }
+
+        $answer = Read-Host "Wil je NVIDIA App installeren? (Y/N)"
+        if ($answer -match "^[Yy]$") {
+            Write-Host "NVIDIA App..." -ForegroundColor Yellow
+            $nvidiaTemp = "$env:TEMP\NVIDIA_App_Setup.exe"
+            Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
+            Start-Process $nvidiaTemp -Wait
+        }
         Write-Host "`nKlaar!" -ForegroundColor Green
         Clear-Host
     }
@@ -117,12 +160,11 @@ switch ($choice) {
             Invoke-RestMethod -Uri "https://christitus.com/win" -UseBasicParsing | Invoke-Expression
         } catch {
             Write-Host "Could not load Chris Titus Tool." -ForegroundColor Red
-            Write-Host "Check your internet or try running as Administrator." -ForegroundColor Yellow
         }
         Clear-Host
     }
     "0" {
-        Write-Host "Tot ziens!" -ForegroundColor Cyan
+        Write-Host "Tot ziens, boss!" -ForegroundColor Cyan
         Clear-Host
         exit
     }
