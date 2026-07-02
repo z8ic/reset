@@ -1,19 +1,19 @@
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host "Requesting Administrator rights..." -ForegroundColor Yellow
+    Write-Host "Requesting Administrator privileges..." -ForegroundColor Yellow
     try {
-        $scriptPath = $MyInvocation.MyCommand.Path
-        Start-Process PowerShell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+        $script = $MyInvocation.MyCommand.Path
+        Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$script`""
         exit
-    }
-    catch {
-        Write-Host "Failed to get Administrator rights." -ForegroundColor Red
-        Write-Host "Right-click → Run as administrator" -ForegroundColor Yellow
+    } catch {
+        Write-Host "Failed to elevate to Administrator." -ForegroundColor Red
+        Write-Host "Please right-click the .ps1 file and select 'Run with PowerShell as administrator'" -ForegroundColor Yellow
         pause
         exit
     }
 }
 
 Clear-Host
+
 
 $desktop = [Environment]::GetFolderPath("Desktop")
 $setupPath = "$desktop\Apps"
@@ -33,6 +33,7 @@ $apps = @{
     "FiveM"             = "Cfx.re.FiveM"
     "ReShade"           = "Reshade.Setup"
 }
+
 
 function Make-Folders {
     New-Item -ItemType Directory -Path $downloadPath -Force | Out-Null
