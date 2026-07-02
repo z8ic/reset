@@ -24,11 +24,11 @@ function Make-Folders {
 
 function Download-Configs {
     Make-Folders
-    Invoke-WebRequest "$repo/grijs.ini" -OutFile "$configPath\grijs.ini"
-    Invoke-WebRequest "$repo/kleurtjes.ini" -OutFile "$configPath\kleurtjes.ini"
-    Invoke-WebRequest "$repo/camera_save_structure.xml" -OutFile "$configPath\camera_save_structure.xml"
-    Invoke-WebRequest "$repo/fivem.cfg" -OutFile "$configPath\fivem.cfg"
-    Invoke-WebRequest "$repo/gta5_settings.xml" -OutFile "$configPath\gta5_settings.xml"
+    $files = @("grijs.ini","kleurtjes.ini","camera_save_structure.xml","fivem.cfg","gta5_settings.xml")
+    foreach ($file in $files) {
+        Write-Host "Downloading $file..." -ForegroundColor Yellow
+        Invoke-WebRequest "$repo/$file" -OutFile "$configPath\$file" -UseBasicParsing
+    }
     Write-Host "Configs opgeslagen in $configPath" -ForegroundColor Green
 }
 
@@ -48,16 +48,16 @@ switch ($choice) {
     "1" {
         foreach ($app in $apps.Keys) {
             Write-Host "Installeren van $app..." -ForegroundColor Yellow
-            winget install --id $apps[$app] -e --accept-package-agreements --accept-source-agreements
+            winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
         }
-        Write-Host "Spotify installeren..." -ForegroundColor Yellow
+        Write-Host "Spotify..." -ForegroundColor Yellow
         $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
-        Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp
+        Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
         Start-Process $spotifyTemp -Wait
 
-        Write-Host "NVIDIA App installeren..." -ForegroundColor Yellow
+        Write-Host "NVIDIA App..." -ForegroundColor Yellow
         $nvidiaTemp = "$env:TEMP\NVIDIA_App_Setup.exe"
-        Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp
+        Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
         Start-Process $nvidiaTemp -Wait
 
         Write-Host "Klaar!" -ForegroundColor Green
@@ -67,19 +67,22 @@ switch ($choice) {
         foreach ($app in $apps.Keys) {
             $answer = Read-Host "Wil je $app installeren? (Y/N)"
             if ($answer -match "^[Yy]$") {
-                winget install --id $apps[$app] -e --accept-package-agreements --accept-source-agreements
+                Write-Host "Installeren van $app..." -ForegroundColor Yellow
+                winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
             }
         }
         $answer = Read-Host "Wil je Spotify installeren? (Y/N)"
         if ($answer -match "^[Yy]$") {
+            Write-Host "Spotify..." -ForegroundColor Yellow
             $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
-            Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp
+            Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
             Start-Process $spotifyTemp -Wait
         }
         $answer = Read-Host "Wil je NVIDIA App installeren? (Y/N)"
         if ($answer -match "^[Yy]$") {
+            Write-Host "NVIDIA App..." -ForegroundColor Yellow
             $nvidiaTemp = "$env:TEMP\NVIDIA_App_Setup.exe"
-            Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp
+            Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
             Start-Process $nvidiaTemp -Wait
         }
         Write-Host "Klaar!" -ForegroundColor Green
@@ -87,11 +90,11 @@ switch ($choice) {
     "3" {
         Make-Folders
         foreach ($app in $apps.Values) {
-            Write-Host "Downloaden van $app..." -ForegroundColor Yellow
-            winget download --id $app -e --download-directory $downloadPath
+            Write-Host "Downloading $app..." -ForegroundColor Yellow
+            winget download --id $app --source winget -e --download-directory $downloadPath
         }
-        Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile "$downloadPath\Spotify_Setup.exe"
-        Invoke-WebRequest $nvidiaUrl -OutFile "$downloadPath\NVIDIA_App_Setup.exe"
+        Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile "$downloadPath\Spotify_Setup.exe" -UseBasicParsing
+        Invoke-WebRequest $nvidiaUrl -OutFile "$downloadPath\NVIDIA_App_Setup.exe" -UseBasicParsing
         Write-Host "Installers opgeslagen in $downloadPath" -ForegroundColor Green
     }
     "4" {
