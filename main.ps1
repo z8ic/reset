@@ -118,14 +118,17 @@ switch ($choice) {
     "5" {
         Write-Host "Opening Chris Titus Tool (winutil)..." -ForegroundColor Cyan
         try {
-            irm christitus.com/win | iex
+            Invoke-RestMethod -Uri "https://christitus.com/win" -UseBasicParsing | Invoke-Expression
         }
         catch {
             Write-Host "Error loading Chris Titus Tool:" -ForegroundColor Red
             Write-Host $_.Exception.Message -ForegroundColor Red
-            Write-Host "Check your internet connection or try running the script as Administrator." -ForegroundColor Yellow
+            Write-Host "`nTips:" -ForegroundColor Yellow
+            Write-Host "- Make sure you have internet connection" -ForegroundColor Yellow
+            Write-Host "- Try running PowerShell as Administrator" -ForegroundColor Yellow
+            Write-Host "- You can also open it manually by going to: https://christitus.com/win" -ForegroundColor Yellow
         }
-        Read-Host "`nDruk op Enter om terug te gaan..."
+        Read-Host "`nDruk op Enter om terug te gaan naar het menu..."
         Clear-Host
     }
     "0" {
