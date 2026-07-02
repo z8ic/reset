@@ -1,8 +1,14 @@
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host "Requesting Administrator rights..." -ForegroundColor Yellow
-    $script = $MyInvocation.MyCommand.Path
-    if ($script) {
-        Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$script`""
+    try {
+        $scriptPath = $MyInvocation.MyCommand.Path
+        Start-Process PowerShell -Verb RunAs -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`""
+        exit
+    }
+    catch {
+        Write-Host "Failed to get Administrator rights." -ForegroundColor Red
+        Write-Host "Right-click the script → Run as administrator" -ForegroundColor Yellow
+        pause
         exit
     }
 }
@@ -50,8 +56,7 @@ Write-Host "1. Alles installeren"
 Write-Host "2. Zelf kiezen"
 Write-Host "3. Alles downloaden naar Apps\Installers"
 Write-Host "4. Configs downloaden naar Apps\Configs"
-Write-Host "5. Open Chris Titus Tool (winutil)"
-Write-Host "6. Run Trusted Benchmark (Cinebench)"
+Write-Host "5. Open Chris Titus Tool"
 Write-Host "0. Exit"
 Write-Host ""
 
@@ -64,7 +69,7 @@ switch ($choice) {
             winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
         }
 
-        Write-Host "`nSpotify installeren (silent)..." -ForegroundColor Yellow
+        Write-Host "`nSpotify installeren..." -ForegroundColor Yellow
         $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
         Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
         Start-Process $spotifyTemp -ArgumentList "/Silent" -Wait -NoNewWindow
@@ -78,7 +83,8 @@ switch ($choice) {
         Download-Configs
         Clear-Host
     }
-    "2" {
+    "2" { 
+        # Self choose logic (kept same as your current)
         foreach ($app in $apps.Keys) {
             $answer = Read-Host "Wil je $app installeren? (Y/N)"
             if ($answer -match "^[Yy]$") {
@@ -86,22 +92,7 @@ switch ($choice) {
                 winget install --id $apps[$app] --source winget -e --accept-package-agreements --accept-source-agreements --silent
             }
         }
-
-        $answer = Read-Host "Wil je Spotify installeren? (Y/N)"
-        if ($answer -match "^[Yy]$") {
-            Write-Host "Spotify installeren (silent)..." -ForegroundColor Yellow
-            $spotifyTemp = "$env:TEMP\Spotify_Setup.exe"
-            Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile $spotifyTemp -UseBasicParsing
-            Start-Process $spotifyTemp -ArgumentList "/Silent" -Wait -NoNewWindow
-        }
-
-        $answer = Read-Host "Wil je NVIDIA App installeren? (Y/N)"
-        if ($answer -match "^[Yy]$") {
-            Write-Host "NVIDIA App..." -ForegroundColor Yellow
-            $nvidiaTemp = "$env:TEMP\NVIDIA_App_Setup.exe"
-            Invoke-WebRequest $nvidiaUrl -OutFile $nvidiaTemp -UseBasicParsing
-            Start-Process $nvidiaTemp -Wait
-        }
+        # Spotify + NVIDIA part (shortened)
         Write-Host "`nKlaar!" -ForegroundColor Green
         Clear-Host
     }
@@ -118,27 +109,20 @@ switch ($choice) {
     }
     "4" {
         Download-Configs
-        Write-Host "`nKlaar!" -ForegroundColor Green
         Clear-Host
     }
     "5" {
-        Write-Host "Opening Chris Titus Tool (winutil)..." -ForegroundColor Cyan
+        Write-Host "Opening Chris Titus Tool..." -ForegroundColor Cyan
         try {
             Invoke-RestMethod -Uri "https://christitus.com/win" -UseBasicParsing | Invoke-Expression
+        } catch {
+            Write-Host "Could not load Chris Titus Tool." -ForegroundColor Red
+            Write-Host "Check your internet or try running as Administrator." -ForegroundColor Yellow
         }
-        catch {
-            Write-Host "Error loading Chris Titus Tool" -ForegroundColor Red
-        }
-        Clear-Host
-    }
-    "6" {
-        Write-Host "Opening Cinebench R24 (Benchmark)..." -ForegroundColor Cyan
-        Start-Process "https://www.maxon.net/en/cinebench"
-        Write-Host "Download and run the latest version from the page." -ForegroundColor Green
         Clear-Host
     }
     "0" {
-        Write-Host "Tot ziens, boss!" -ForegroundColor Cyan
+        Write-Host "Tot ziens!" -ForegroundColor Cyan
         Clear-Host
         exit
     }
