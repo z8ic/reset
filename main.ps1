@@ -33,6 +33,42 @@ function Make-Folders {
     New-Item -ItemType Directory -Path $benchmarkPath -Force | Out-Null
 }
 
+function Create-ConfigTutorial {
+    $readmePath = "$configPath\README_Config_Files.txt"
+    $content = @"
+RESET TOOL - CONFIG FILES TUTORIAL
+=================================
+
+The config files have been downloaded to:
+$configPath
+
+WHERE TO PUT EACH FILE:
+
+1. grijs.ini
+2. kleurtjes.ini
+   → %localappdata%\FiveM\FiveM.app\plugins\
+
+3. fivem.cfg
+   → %appdata%\CitizenFX\
+   (Example: C:\Users\<YourUser>\AppData\Roaming\CitizenFX\)
+
+4. gta5_settings.xml
+   → %appdata%\CitizenFX\
+
+5. camera_save_structure.xml
+   → %appdata%\CitizenFX\
+
+How to use:
+- Copy each file to the folder listed above.
+- Overwrite the existing file if prompted.
+- Restart FiveM before launching your server.
+
+Good luck!
+"@
+
+    $content | Out-File -FilePath $readmePath -Encoding UTF8
+    Write-Host "Tutorial (README_Config_Files.txt) created!" -ForegroundColor Green
+}
 function Download-Configs {
     Make-Folders
     $files = @("grijs.ini","kleurtjes.ini","camera_save_structure.xml","fivem.cfg","gta5_settings.xml")
@@ -40,6 +76,7 @@ function Download-Configs {
         Write-Host "Downloading $file..." -ForegroundColor Yellow
         Invoke-WebRequest "$repo/$file" -OutFile "$configPath\$file" -UseBasicParsing
     }
+    Create-ConfigTutorial
     Write-Host "Configs opgeslagen in $configPath" -ForegroundColor Green
 }
 
@@ -131,12 +168,9 @@ switch ($choice) {
         }
         Invoke-WebRequest "https://download.scdn.co/SpotifySetup.exe" -OutFile "$downloadPath\Spotify_Setup.exe" -UseBasicParsing
         Invoke-WebRequest $nvidiaUrl -OutFile "$downloadPath\NVIDIA_App_Setup.exe" -UseBasicParsing
-
         
-        Write-Host "Cleaning up .yaml files..." -ForegroundColor Yellow
         Remove-Item "$downloadPath\*.yaml" -Force -ErrorAction SilentlyContinue
-        
-        Write-Host "`nKlaar! Installers saved in Apps\Installers" -ForegroundColor Green
+        Write-Host "`nKlaar!" -ForegroundColor Green
         Clear-Host
     }
     "4" {
