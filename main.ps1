@@ -1,4 +1,4 @@
-﻿Clear-Host
+Clear-Host
 
 $desktop = [Environment]::GetFolderPath("Desktop")
 $setupPath = "$desktop\Apps"
