@@ -599,10 +599,12 @@ function Install-JokersPacksAuto {
     Make-Folders
     $gtaPath = Get-GTAPath
     $fiveMPath = Get-FiveMPath
+    $fiveMBase = "$env:LOCALAPPDATA\FiveM\FiveM.app"
     $gtaModsPath = if ($gtaPath) { Join-Path $gtaPath "mods" } else { $null }
+    $gtaAudioDirect = if ($gtaPath) { Join-Path $gtaPath "x64\audio\sfx" } else { $null }
     $gtaAudioMods = if ($gtaPath) { Join-Path $gtaModsPath "x64\audio\sfx" } else { $null }
-    $fiveMMods = if ($fiveMPath) { Join-Path $fiveMPath "mods" } else { $null }
-    foreach ($p in @($gtaModsPath, $gtaAudioMods, $fiveMMods)) { if ($p -and -not (Test-Path $p)) { try { New-Item -ItemType Directory -Path $p -Force | Out-Null } catch {} } }
+    $fiveMMods = Join-Path $fiveMBase "mods"
+    foreach ($p in @($gtaModsPath, $gtaAudioDirect, $gtaAudioMods, $fiveMBase, $fiveMMods)) { if ($p -and -not (Test-Path $p)) { try { New-Item -ItemType Directory -Path $p -Force | Out-Null } catch {} } }
 
     $destSound = Join-Path $modsStagingPath "JokersSoundpack"
     $destMods = Join-Path $modsStagingPath "JokersNVE"
@@ -656,9 +658,8 @@ function Install-JokersPacksAuto {
             $isNVE = $fileName -match "NVE|EUROPE ROADS|Street_Lights|Window_Raindrops|Engine_Smoke|Northern_Lights|Weapons_Overhaul|Cool White"
             $destinations = @()
             if ($isSound) {
+                if ($gtaAudioDirect) { $destinations += $gtaAudioDirect }
                 if ($gtaAudioMods) { $destinations += $gtaAudioMods }
-                if ($gtaPath) { $destinations += "$gtaPath\x64\audio\sfx" }
-                if ($fiveMMods) { $destinations += $fiveMMods }
             } elseif ($isNVE) {
                 if ($gtaModsPath) { $destinations += $gtaModsPath }
                 if ($fiveMMods) { $destinations += $fiveMMods }
@@ -699,10 +700,10 @@ function Install-CustomBloodMod {
     Write-Log "=== Custom BLOOD_MOD.RPF (Drive) downloaden ===" "Magenta"
     Make-Folders
     $gtaPath = Get-GTAPath
-    $fiveMPath = Get-FiveMPath
+    $fiveMBase = "$env:LOCALAPPDATA\FiveM\FiveM.app"
     $gtaModsPath = if ($gtaPath) { Join-Path $gtaPath "mods" } else { $null }
-    $fiveMMods = if ($fiveMPath) { Join-Path $fiveMPath "mods" } else { $null }
-    foreach ($p in @($gtaModsPath, $fiveMMods)) { if ($p -and -not (Test-Path $p)) { try { New-Item -ItemType Directory -Path $p -Force | Out-Null } catch {} } }
+    $fiveMMods = Join-Path $fiveMBase "mods"
+    foreach ($p in @($gtaModsPath, $fiveMBase, $fiveMMods)) { if ($p -and -not (Test-Path $p)) { try { New-Item -ItemType Directory -Path $p -Force | Out-Null } catch {} } }
 
     $destFile = Join-Path $modsStagingPath "BLOOD_MOD.RPF"
     $destFileLower = Join-Path $modsStagingPath "blood_mod.rpf"
@@ -766,10 +767,10 @@ function Install-CustomMinimap {
     Write-Log "=== Custom minimap.rpf (Drive) downloaden ===" "Magenta"
     Make-Folders
     $gtaPath = Get-GTAPath
-    $fiveMPath = Get-FiveMPath
+    $fiveMBase = "$env:LOCALAPPDATA\FiveM\FiveM.app"
     $gtaModsPath = if ($gtaPath) { Join-Path $gtaPath "mods" } else { $null }
-    $fiveMMods = if ($fiveMPath) { Join-Path $fiveMPath "mods" } else { $null }
-    foreach ($p in @($gtaModsPath, $fiveMMods)) { if ($p -and -not (Test-Path $p)) { try { New-Item -ItemType Directory -Path $p -Force | Out-Null } catch {} } }
+    $fiveMMods = Join-Path $fiveMBase "mods"
+    foreach ($p in @($gtaModsPath, $fiveMBase, $fiveMMods)) { if ($p -and -not (Test-Path $p)) { try { New-Item -ItemType Directory -Path $p -Force | Out-Null } catch {} } }
 
     $destFile = Join-Path $modsStagingPath "minimap.rpf"
     New-Item -ItemType Directory -Path $modsStagingPath -Force | Out-Null
@@ -800,8 +801,9 @@ function Install-CustomMinimap {
         $destinations = @()
         if ($gtaModsPath) { $destinations += $gtaModsPath }
         if ($fiveMMods) { $destinations += $fiveMMods }
-        # minimap ook naar citizen/common/data voor FiveM minimap
-        if ($fiveMPath) { $destinations += "$fiveMPath\citizen\common\data" }
+        # minimap ook naar FiveM.app citizen voor zekerheid
+        $citizenData = Join-Path $fiveMBase "citizen\common\data"
+        if ($citizenData) { $destinations += $citizenData }
         $destinations += $modsLocalPath
         foreach ($dest in $destinations | Select-Object -Unique) {
             if (-not $dest) { continue }
@@ -841,12 +843,15 @@ function Install-ModsAuto {
         Write-Log "FiveM (nog) niet gevonden - mods gaan alleen naar GTA" "Yellow"
     }
 
-    # Zorg dat mods folders bestaan
+    # Zorg dat mods folders bestaan - CORRECTE PADEN VOLGENS USER
+    $fiveMBase = "$env:LOCALAPPDATA\FiveM\FiveM.app"
     $gtaModsPath = if ($gtaPath) { Join-Path $gtaPath "mods" } else { $null }
+    # Sound pack moet naar GTA x64\audio\sfx direct (voor Steam én Rockstar), niet naar mods
+    $gtaAudioDirect = if ($gtaPath) { Join-Path $gtaPath "x64\audio\sfx" } else { $null }
     $gtaAudioMods = if ($gtaPath) { Join-Path $gtaModsPath "x64\audio\sfx" } else { $null }
-    $fiveMMods = if ($fiveMPath) { Join-Path $fiveMPath "mods" } else { $null }
+    $fiveMMods = Join-Path $fiveMBase "mods"
 
-    foreach ($p in @($gtaModsPath, $gtaAudioMods, $fiveMMods, $modsLocalPath)) {
+    foreach ($p in @($gtaModsPath, $gtaAudioDirect, $gtaAudioMods, $fiveMBase, $fiveMMods, $modsLocalPath)) {
         if ($p -and -not (Test-Path $p)) {
             try { New-Item -ItemType Directory -Path $p -Force | Out-Null; Write-Log "Map gemaakt: $p" "Gray" } catch {}
         }
@@ -887,9 +892,8 @@ function Install-ModsAuto {
                 $destinations = @()
 
                 if ($isSound) {
+                    if ($gtaAudioDirect) { $destinations += $gtaAudioDirect }
                     if ($gtaAudioMods) { $destinations += $gtaAudioMods }
-                    if ($gtaPath) { $destinations += "$gtaPath\x64\audio\sfx" } # ook direct zonder mods folder voor testen
-                    if ($fiveMMods) { $destinations += $fiveMMods }
                 } else {
                     if ($gtaModsPath) { $destinations += $gtaModsPath }
                     if ($fiveMMods) { $destinations += $fiveMMods }
@@ -946,8 +950,8 @@ function Install-ModsAuto {
             $isSound = $fileName -match "sound|audio|sfx|voice"
             $destinations = @()
             if ($isSound) {
+                if ($gtaAudioDirect) { $destinations += $gtaAudioDirect }
                 if ($gtaAudioMods) { $destinations += $gtaAudioMods }
-                if ($fiveMMods) { $destinations += $fiveMMods }
             } else {
                 if ($gtaModsPath) { $destinations += $gtaModsPath }
                 if ($fiveMMods) { $destinations += $fiveMMods }
