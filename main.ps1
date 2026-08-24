@@ -13,7 +13,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 }
 
 # ================= CONFIG =================
-$Version = "2.5 - VS Code + Clean README"
+$Version = "2.6 - VS Code + VPNs"
 $desktop = [Environment]::GetFolderPath("Desktop")
 $setupPath = "$desktop\Apps"
 $downloadPath = "$setupPath\Installers"
@@ -39,7 +39,7 @@ $customBloodModUrl = "https://drive.google.com/file/d/$customBloodModFileId/view
 $customMinimapFileId = "1HTD6ujiV_fJ49bNcybLw-9Bqjfdj50Ag"
 $customMinimapUrl = "https://drive.google.com/file/d/$customMinimapFileId/view?usp=sharing"
 
-# Updated winget IDs - 2026 verified - inclusief WinRAR, VLC, VS Code etc
+# Updated winget IDs - 2026 verified - inclusief WinRAR, VLC, VS Code, VPNs etc
 $apps = @{
     "Discord"             = "Discord.Discord"
     "Epic Games"          = "EpicGames.EpicGamesLauncher"
@@ -52,6 +52,8 @@ $apps = @{
     "WinRAR"              = "RARLab.WinRAR"
     "VLC"                 = "VideoLAN.VLC"
     "Visual Studio Code"  = "Microsoft.VisualStudioCode"
+    "NordVPN"             = "NordSecurity.NordVPN"
+    "IPVanish"            = "IPVanish.IPVanish"
 }
 
 $logFile = "$setupPath\reset_log.txt"
@@ -1128,7 +1130,7 @@ while ($true) {
     Write-Host "13. Alleen BLOOD_MOD + minimap (jouw Drive)" -ForegroundColor DarkMagenta
     Write-Host "0. Exit" -ForegroundColor Red
     Write-Host ""
-    Write-Host "Apps: Discord, Spotify, Brave, VLC, VS Code, WinRAR, Rockstar, Epic, Steam, FiveM, ReShade, NVIDIA" -ForegroundColor DarkGray
+    Write-Host "Apps: Discord, Spotify, Brave, VLC, VS Code, WinRAR, NordVPN, IPVanish, Rockstar, Epic, Steam, FiveM, ReShade, NVIDIA" -ForegroundColor DarkGray
     Write-Host "Log: $logFile" -ForegroundColor DarkGray
     Write-Host ""
     $choice = Read-Host "Maak een keuze (0-13)"
@@ -1206,7 +1208,7 @@ while ($true) {
             Write-Log "Stap 1/8: Game Prereqs (VCRedist + DirectX + .NET)..." "Yellow"
             Install-VCRedistDirectX | Out-Null
 
-            Write-Log "Stap 2/8: Apps installeren (Discord, Spotify, Brave, VLC, VS Code, WinRAR, Rockstar, Epic, Steam, FiveM, ReShade, NVIDIA)..." "Yellow"
+            Write-Log "Stap 2/8: Apps installeren (Discord, Spotify, Brave, VLC, VS Code, WinRAR, NordVPN, IPVanish, Rockstar, Epic, Steam, FiveM, ReShade, NVIDIA)..." "Yellow"
             foreach ($app in $apps.Keys) { Install-AppWinget -Name $app -WingetId $apps[$app] }
             Install-SpotifyAuto
             Install-NvidiaAppAuto
